@@ -3137,12 +3137,22 @@ mod verify {
     check_bitor!(i64, core::num::NonZeroI64, i64, nonzero_check_bitor_for_i64_nt);
 
     // i128
-    check_bitor!(i128, core::num::NonZeroI128, core::num::NonZeroI128, nonzero_check_bitor_for_i128_nn);
+    check_bitor!(
+        i128,
+        core::num::NonZeroI128,
+        core::num::NonZeroI128,
+        nonzero_check_bitor_for_i128_nn
+    );
     check_bitor!(i128, i128, core::num::NonZeroI128, nonzero_check_bitor_for_i128_tn);
     check_bitor!(i128, core::num::NonZeroI128, i128, nonzero_check_bitor_for_i128_nt);
 
     // isize
-    check_bitor!(isize, core::num::NonZeroIsize, core::num::NonZeroIsize, nonzero_check_bitor_for_isize_nn);
+    check_bitor!(
+        isize,
+        core::num::NonZeroIsize,
+        core::num::NonZeroIsize,
+        nonzero_check_bitor_for_isize_nn
+    );
     check_bitor!(isize, isize, core::num::NonZeroIsize, nonzero_check_bitor_for_isize_tn);
     check_bitor!(isize, core::num::NonZeroIsize, isize, nonzero_check_bitor_for_isize_nt);
 
@@ -3167,12 +3177,22 @@ mod verify {
     check_bitor!(u64, core::num::NonZeroU64, u64, nonzero_check_bitor_for_u64_nt);
 
     // u128
-    check_bitor!(u128, core::num::NonZeroU128, core::num::NonZeroU128, nonzero_check_bitor_for_u128_nn);
+    check_bitor!(
+        u128,
+        core::num::NonZeroU128,
+        core::num::NonZeroU128,
+        nonzero_check_bitor_for_u128_nn
+    );
     check_bitor!(u128, u128, core::num::NonZeroU128, nonzero_check_bitor_for_u128_tn);
     check_bitor!(u128, core::num::NonZeroU128, u128, nonzero_check_bitor_for_u128_nt);
 
     // usize
-    check_bitor!(usize, core::num::NonZeroUsize, core::num::NonZeroUsize, nonzero_check_bitor_for_usize_nn);
+    check_bitor!(
+        usize,
+        core::num::NonZeroUsize,
+        core::num::NonZeroUsize,
+        nonzero_check_bitor_for_usize_nn
+    );
     check_bitor!(usize, usize, core::num::NonZeroUsize, nonzero_check_bitor_for_usize_tn);
     check_bitor!(usize, core::num::NonZeroUsize, usize, nonzero_check_bitor_for_usize_nt);
 
@@ -3240,13 +3260,21 @@ mod verify {
     nonzero_check_reverse_bits!(i32, core::num::NonZeroI32, nonzero_check_reverse_bits_for_i32);
     nonzero_check_reverse_bits!(i64, core::num::NonZeroI64, nonzero_check_reverse_bits_for_i64);
     nonzero_check_reverse_bits!(i128, core::num::NonZeroI128, nonzero_check_reverse_bits_for_i128);
-    nonzero_check_reverse_bits!(isize, core::num::NonZeroIsize, nonzero_check_reverse_bits_for_isize);
+    nonzero_check_reverse_bits!(
+        isize,
+        core::num::NonZeroIsize,
+        nonzero_check_reverse_bits_for_isize
+    );
     nonzero_check_reverse_bits!(u8, core::num::NonZeroU8, nonzero_check_reverse_bits_for_u8);
     nonzero_check_reverse_bits!(u16, core::num::NonZeroU16, nonzero_check_reverse_bits_for_u16);
     nonzero_check_reverse_bits!(u32, core::num::NonZeroU32, nonzero_check_reverse_bits_for_u32);
     nonzero_check_reverse_bits!(u64, core::num::NonZeroU64, nonzero_check_reverse_bits_for_u64);
     nonzero_check_reverse_bits!(u128, core::num::NonZeroU128, nonzero_check_reverse_bits_for_u128);
-    nonzero_check_reverse_bits!(usize, core::num::NonZeroUsize, nonzero_check_reverse_bits_for_usize);
+    nonzero_check_reverse_bits!(
+        usize,
+        core::num::NonZeroUsize,
+        nonzero_check_reverse_bits_for_usize
+    );
 
     macro_rules! check_rotate_left {
         ($type:ty, $nonzero_type:ty, $check_from_be_for:ident) => {
