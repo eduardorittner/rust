@@ -3105,6 +3105,7 @@ mod verify {
 
     macro_rules! check_bitor {
         ($t:ty, $lhs_type:ty, $rhs_type:ty, $check_bitor_for:ident) => {
+            // TODO: Change to proof_for_contract once kani supports generic trait methods
             #[kani::proof]
             pub fn $check_bitor_for() {
                 let a: $lhs_type = kani::any();
