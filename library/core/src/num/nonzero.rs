@@ -945,6 +945,7 @@ macro_rules! nonzero_integer {
             #[unstable(feature = "nonzero_bitwise", issue = "128281")]
             #[must_use]
             #[inline(always)]
+            #[ensures(|result| result.get() != 0)]
             pub const fn from_be(x: Self) -> Self {
                 let result = $Int::from_be(x.get());
                 // SAFETY: Shuffling bytes preserves the property int > 0.
@@ -978,6 +979,7 @@ macro_rules! nonzero_integer {
             #[unstable(feature = "nonzero_bitwise", issue = "128281")]
             #[must_use]
             #[inline(always)]
+            #[ensures(|result| result.get() != 0)]
             pub const fn from_le(x: Self) -> Self {
                 let result = $Int::from_le(x.get());
                 // SAFETY: Shuffling bytes preserves the property int > 0.
@@ -1011,6 +1013,7 @@ macro_rules! nonzero_integer {
             #[must_use = "this returns the result of the operation, \
                         without modifying the original"]
             #[inline(always)]
+            #[ensures(|result| result.get() != 0)]
             pub const fn to_be(self) -> Self {
                 let result = self.get().to_be();
                 // SAFETY: Shuffling bytes preserves the property int > 0.
@@ -1044,6 +1047,7 @@ macro_rules! nonzero_integer {
             #[must_use = "this returns the result of the operation, \
                         without modifying the original"]
             #[inline(always)]
+            #[ensures(|result| result.get() != 0)]
             pub const fn to_le(self) -> Self {
                 let result = self.get().to_le();
                 // SAFETY: Shuffling bytes preserves the property int > 0.
@@ -3144,4 +3148,104 @@ mod verify {
     nonzero_check_reverse_bits!(u64, core::num::NonZeroU64, nonzero_check_reverse_bits_for_u64);
     nonzero_check_reverse_bits!(u128, core::num::NonZeroU128, nonzero_check_reverse_bits_for_u128);
     nonzero_check_reverse_bits!(usize, core::num::NonZeroUsize, nonzero_check_reverse_bits_for_usize);
+
+    macro_rules! check_from_be {
+        ($type:ty, $nonzero_type:ty, $check_from_be_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::from_be)]
+            pub fn $check_from_be_for() {
+                let x = kani::any::<$type>();
+                kani::assume(x != 0);
+                let x = <$nonzero_type>::new(x).unwrap();
+                let _ = <$nonzero_type>::from_be(x);
+            }
+        };
+    }
+
+    check_from_be!(i8, core::num::NonZeroI8, nonzero_check_from_be_for_i8);
+    check_from_be!(i16, core::num::NonZeroI16, nonzero_check_from_be_for_i16);
+    check_from_be!(i32, core::num::NonZeroI32, nonzero_check_from_be_for_i32);
+    check_from_be!(i64, core::num::NonZeroI64, nonzero_check_from_be_for_i64);
+    check_from_be!(i128, core::num::NonZeroI128, nonzero_check_from_be_for_i128);
+    check_from_be!(isize, core::num::NonZeroIsize, nonzero_check_from_be_for_isize);
+    check_from_be!(u8, core::num::NonZeroU8, nonzero_check_from_be_for_u8);
+    check_from_be!(u16, core::num::NonZeroU16, nonzero_check_from_be_for_u16);
+    check_from_be!(u32, core::num::NonZeroU32, nonzero_check_from_be_for_u32);
+    check_from_be!(u64, core::num::NonZeroU64, nonzero_check_from_be_for_u64);
+    check_from_be!(u128, core::num::NonZeroU128, nonzero_check_from_be_for_u128);
+    check_from_be!(usize, core::num::NonZeroUsize, nonzero_check_from_be_for_usize);
+
+    macro_rules! check_from_le {
+        ($type:ty, $nonzero_type:ty, $check_from_le_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::from_le)]
+            pub fn $check_from_le_for() {
+                let x = kani::any::<$type>();
+                kani::assume(x != 0);
+                let x = <$nonzero_type>::new(x).unwrap();
+                let _ = <$nonzero_type>::from_le(x);
+            }
+        };
+    }
+
+    check_from_le!(i8, core::num::NonZeroI8, nonzero_check_from_le_for_i8);
+    check_from_le!(i16, core::num::NonZeroI16, nonzero_check_from_le_for_i16);
+    check_from_le!(i32, core::num::NonZeroI32, nonzero_check_from_le_for_i32);
+    check_from_le!(i64, core::num::NonZeroI64, nonzero_check_from_le_for_i64);
+    check_from_le!(i128, core::num::NonZeroI128, nonzero_check_from_le_for_i128);
+    check_from_le!(isize, core::num::NonZeroIsize, nonzero_check_from_le_for_isize);
+    check_from_le!(u8, core::num::NonZeroU8, nonzero_check_from_le_for_u8);
+    check_from_le!(u16, core::num::NonZeroU16, nonzero_check_from_le_for_u16);
+    check_from_le!(u32, core::num::NonZeroU32, nonzero_check_from_le_for_u32);
+    check_from_le!(u64, core::num::NonZeroU64, nonzero_check_from_le_for_u64);
+    check_from_le!(u128, core::num::NonZeroU128, nonzero_check_from_le_for_u128);
+    check_from_le!(usize, core::num::NonZeroUsize, nonzero_check_from_le_for_usize);
+
+    macro_rules! check_to_be {
+        ($type:ty, $nonzero_type:ty, $check_to_be_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::to_be)]
+            pub fn $check_to_be_for() {
+                let x = kani::any::<$type>();
+                kani::assume(x != 0);
+                let x = <$nonzero_type>::new(x).unwrap();
+                let _ = <$nonzero_type>::to_be(x);
+            }
+        };
+    }
+
+    check_to_be!(i8, core::num::NonZeroI8, nonzero_check_to_be_for_i8);
+    check_to_be!(i16, core::num::NonZeroI16, nonzero_check_to_be_for_i16);
+    check_to_be!(i32, core::num::NonZeroI32, nonzero_check_to_be_for_i32);
+    check_to_be!(i64, core::num::NonZeroI64, nonzero_check_to_be_for_i64);
+    check_to_be!(i128, core::num::NonZeroI128, nonzero_check_to_be_for_i128);
+    check_to_be!(isize, core::num::NonZeroIsize, nonzero_check_to_be_for_isize);
+    check_to_be!(u8, core::num::NonZeroU8, nonzero_check_to_be_for_u8);
+    check_to_be!(u16, core::num::NonZeroU16, nonzero_check_to_be_for_u16);
+    check_to_be!(u32, core::num::NonZeroU32, nonzero_check_to_be_for_u32);
+    check_to_be!(u64, core::num::NonZeroU64, nonzero_check_to_be_for_u64);
+    check_to_be!(u128, core::num::NonZeroU128, nonzero_check_to_be_for_u128);
+    check_to_be!(usize, core::num::NonZeroUsize, nonzero_check_to_be_for_usize);
+
+    macro_rules! check_to_le {
+        ($type:ty, $nonzero_type:ty, $check_to_le_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::to_le)]
+            pub fn $check_to_le_for() {
+                let x = kani::any::<$type>();
+                kani::assume(x != 0);
+                let x = <$nonzero_type>::new(x).unwrap();
+                let _ = <$nonzero_type>::to_le(x);
+            }
+        };
+    }
+
+    check_to_le!(i8, core::num::NonZeroI8, nonzero_check_to_le_for_i8);
+    check_to_le!(i16, core::num::NonZeroI16, nonzero_check_to_le_for_i16);
+    check_to_le!(i32, core::num::NonZeroI32, nonzero_check_to_le_for_i32);
+    check_to_le!(i64, core::num::NonZeroI64, nonzero_check_to_le_for_i64);
+    check_to_le!(i128, core::num::NonZeroI128, nonzero_check_to_le_for_i128);
+    check_to_le!(isize, core::num::NonZeroIsize, nonzero_check_to_le_for_isize);
+    check_to_le!(u8, core::num::NonZeroU8, nonzero_check_to_le_for_u8);
+    check_to_le!(u16, core::num::NonZeroU16, nonzero_check_to_le_for_u16);
+    check_to_le!(u32, core::num::NonZeroU32, nonzero_check_to_le_for_u32);
+    check_to_le!(u64, core::num::NonZeroU64, nonzero_check_to_le_for_u64);
+    check_to_le!(u128, core::num::NonZeroU128, nonzero_check_to_le_for_u128);
+    check_to_le!(usize, core::num::NonZeroUsize, nonzero_check_to_le_for_usize);
 }
