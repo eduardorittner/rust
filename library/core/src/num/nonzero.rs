@@ -322,6 +322,15 @@ where
     type Output = Self;
 
     #[inline]
+    #[ensures(|result| {
+        let result = result.get();
+        let size = core::mem::size_of::<T>();
+        let ptr = &result as *const T as *const u8;
+        let slice = unsafe {core::slice::from_raw_parts(ptr, size)};
+        let is_zero = slice.iter().all(|&byte| byte == 0);
+
+        !is_zero
+    })]
     fn bitor(self, rhs: Self) -> Self::Output {
         // SAFETY: Bitwise OR of two non-zero values is still non-zero.
         unsafe { Self::new_unchecked(self.get() | rhs.get()) }
@@ -337,6 +346,15 @@ where
     type Output = Self;
 
     #[inline]
+    #[ensures(|result| {
+        let result = result.get();
+        let size = core::mem::size_of::<T>();
+        let ptr = &result as *const T as *const u8;
+        let slice = unsafe {core::slice::from_raw_parts(ptr, size)};
+        let is_zero = slice.iter().all(|&byte| byte == 0);
+
+        !is_zero
+    })]
     fn bitor(self, rhs: T) -> Self::Output {
         // SAFETY: Bitwise OR of a non-zero value with anything is still non-zero.
         unsafe { Self::new_unchecked(self.get() | rhs) }
@@ -352,6 +370,15 @@ where
     type Output = NonZero<T>;
 
     #[inline]
+    #[ensures(|result| {
+        let result = result.get();
+        let size = core::mem::size_of::<T>();
+        let ptr = &result as *const T as *const u8;
+        let slice = unsafe {core::slice::from_raw_parts(ptr, size)};
+        let is_zero = slice.iter().all(|&byte| byte == 0);
+
+        !is_zero
+    })]
     fn bitor(self, rhs: NonZero<T>) -> Self::Output {
         // SAFETY: Bitwise OR of anything with a non-zero value is still non-zero.
         unsafe { NonZero::new_unchecked(self | rhs.get()) }
@@ -3076,6 +3103,77 @@ mod verify {
     nonzero_check_add!(u128, core::num::NonZeroU128, nonzero_check_unchecked_add_for_u128);
     nonzero_check_add!(usize, core::num::NonZeroUsize, nonzero_check_unchecked_add_for_usize);
 
+    macro_rules! check_bitor {
+        ($t:ty, $lhs_type:ty, $rhs_type:ty, $check_bitor_for:ident) => {
+            #[kani::proof]
+            pub fn $check_bitor_for() {
+                let a: $lhs_type = kani::any();
+                let b: $rhs_type = kani::any();
+
+                let result = a.bitor(b);
+            }
+        };
+    }
+
+    // i8
+    check_bitor!(i8, core::num::NonZeroI8, core::num::NonZeroI8, nonzero_check_bitor_for_i8_nn);
+    check_bitor!(i8, i8, core::num::NonZeroI8, nonzero_check_bitor_for_i8_tn);
+    check_bitor!(i8, core::num::NonZeroI8, i8, nonzero_check_bitor_for_i8_nt);
+
+    // i16
+    check_bitor!(i16, core::num::NonZeroI16, core::num::NonZeroI16, nonzero_check_bitor_for_i16_nn);
+    check_bitor!(i16, i16, core::num::NonZeroI16, nonzero_check_bitor_for_i16_tn);
+    check_bitor!(i16, core::num::NonZeroI16, i16, nonzero_check_bitor_for_i16_nt);
+
+    // i32
+    check_bitor!(i32, core::num::NonZeroI32, core::num::NonZeroI32, nonzero_check_bitor_for_i32_nn);
+    check_bitor!(i32, i32, core::num::NonZeroI32, nonzero_check_bitor_for_i32_tn);
+    check_bitor!(i32, core::num::NonZeroI32, i32, nonzero_check_bitor_for_i32_nt);
+
+    // i64
+    check_bitor!(i64, core::num::NonZeroI64, core::num::NonZeroI64, nonzero_check_bitor_for_i64_nn);
+    check_bitor!(i64, i64, core::num::NonZeroI64, nonzero_check_bitor_for_i64_tn);
+    check_bitor!(i64, core::num::NonZeroI64, i64, nonzero_check_bitor_for_i64_nt);
+
+    // i128
+    check_bitor!(i128, core::num::NonZeroI128, core::num::NonZeroI128, nonzero_check_bitor_for_i128_nn);
+    check_bitor!(i128, i128, core::num::NonZeroI128, nonzero_check_bitor_for_i128_tn);
+    check_bitor!(i128, core::num::NonZeroI128, i128, nonzero_check_bitor_for_i128_nt);
+
+    // isize
+    check_bitor!(isize, core::num::NonZeroIsize, core::num::NonZeroIsize, nonzero_check_bitor_for_isize_nn);
+    check_bitor!(isize, isize, core::num::NonZeroIsize, nonzero_check_bitor_for_isize_tn);
+    check_bitor!(isize, core::num::NonZeroIsize, isize, nonzero_check_bitor_for_isize_nt);
+
+    // u8
+    check_bitor!(u8, core::num::NonZeroU8, core::num::NonZeroU8, nonzero_check_bitor_for_u8_nn);
+    check_bitor!(u8, u8, core::num::NonZeroU8, nonzero_check_bitor_for_u8_tn);
+    check_bitor!(u8, core::num::NonZeroU8, u8, nonzero_check_bitor_for_u8_nt);
+
+    // u16
+    check_bitor!(u16, core::num::NonZeroU16, core::num::NonZeroU16, nonzero_check_bitor_for_u16_nn);
+    check_bitor!(u16, u16, core::num::NonZeroU16, nonzero_check_bitor_for_u16_tn);
+    check_bitor!(u16, core::num::NonZeroU16, u16, nonzero_check_bitor_for_u16_nt);
+
+    // u32
+    check_bitor!(u32, core::num::NonZeroU32, core::num::NonZeroU32, nonzero_check_bitor_for_u32_nn);
+    check_bitor!(u32, u32, core::num::NonZeroU32, nonzero_check_bitor_for_u32_tn);
+    check_bitor!(u32, core::num::NonZeroU32, u32, nonzero_check_bitor_for_u32_nt);
+
+    // u64
+    check_bitor!(u64, core::num::NonZeroU64, core::num::NonZeroU64, nonzero_check_bitor_for_u64_nn);
+    check_bitor!(u64, u64, core::num::NonZeroU64, nonzero_check_bitor_for_u64_tn);
+    check_bitor!(u64, core::num::NonZeroU64, u64, nonzero_check_bitor_for_u64_nt);
+
+    // u128
+    check_bitor!(u128, core::num::NonZeroU128, core::num::NonZeroU128, nonzero_check_bitor_for_u128_nn);
+    check_bitor!(u128, u128, core::num::NonZeroU128, nonzero_check_bitor_for_u128_tn);
+    check_bitor!(u128, core::num::NonZeroU128, u128, nonzero_check_bitor_for_u128_nt);
+
+    // usize
+    check_bitor!(usize, core::num::NonZeroUsize, core::num::NonZeroUsize, nonzero_check_bitor_for_usize_nn);
+    check_bitor!(usize, usize, core::num::NonZeroUsize, nonzero_check_bitor_for_usize_tn);
+    check_bitor!(usize, core::num::NonZeroUsize, usize, nonzero_check_bitor_for_usize_nt);
 
     macro_rules! check_count_ones {
         ($type:ty, $nonzero_type:ty, $check_count_ones_for:ident) => {
