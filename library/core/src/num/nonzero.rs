@@ -880,6 +880,8 @@ macro_rules! nonzero_integer {
             #[must_use = "this returns the result of the operation, \
                         without modifying the original"]
             #[inline(always)]
+            #[ensures(|result| result.get() != 0)]
+            #[ensures(|result| self == result.swap_bytes())]
             pub const fn swap_bytes(self) -> Self {
                 let result = self.get().swap_bytes();
                 // SAFETY: Shuffling bytes preserves the property int > 0.
@@ -3038,4 +3040,28 @@ mod verify {
     nonzero_check_add!(u64, core::num::NonZeroU64, nonzero_check_unchecked_add_for_u64);
     nonzero_check_add!(u128, core::num::NonZeroU128, nonzero_check_unchecked_add_for_u128);
     nonzero_check_add!(usize, core::num::NonZeroUsize, nonzero_check_unchecked_add_for_usize);
+
+    macro_rules! check_swap_bytes {
+        ($type:ty, $nonzero_type:ty, $check_swap_bytes_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::swap_bytes)]
+            pub fn $check_swap_bytes_for() {
+                let x: $nonzero_type = kani::any();
+
+                let _ = x.swap_bytes();
+            }
+        };
+    }
+
+    check_swap_bytes!(i8, core::num::NonZeroI8, nonzero_check_swap_bytes_for_i8);
+    check_swap_bytes!(i16, core::num::NonZeroI16, nonzero_check_swap_bytes_for_i16);
+    check_swap_bytes!(i32, core::num::NonZeroI32, nonzero_check_swap_bytes_for_i32);
+    check_swap_bytes!(i64, core::num::NonZeroI64, nonzero_check_swap_bytes_for_i64);
+    check_swap_bytes!(i128, core::num::NonZeroI128, nonzero_check_swap_bytes_for_i128);
+    check_swap_bytes!(isize, core::num::NonZeroIsize, nonzero_check_swap_bytes_for_isize);
+    check_swap_bytes!(u8, core::num::NonZeroU8, nonzero_check_swap_bytes_for_u8);
+    check_swap_bytes!(u16, core::num::NonZeroU16, nonzero_check_swap_bytes_for_u16);
+    check_swap_bytes!(u32, core::num::NonZeroU32, nonzero_check_swap_bytes_for_u32);
+    check_swap_bytes!(u64, core::num::NonZeroU64, nonzero_check_swap_bytes_for_u64);
+    check_swap_bytes!(u128, core::num::NonZeroU128, nonzero_check_swap_bytes_for_u128);
+    check_swap_bytes!(usize, core::num::NonZeroUsize, nonzero_check_swap_bytes_for_usize);
 }
