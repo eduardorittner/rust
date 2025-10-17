@@ -3070,6 +3070,31 @@ mod verify {
     nonzero_check_add!(u128, core::num::NonZeroU128, nonzero_check_unchecked_add_for_u128);
     nonzero_check_add!(usize, core::num::NonZeroUsize, nonzero_check_unchecked_add_for_usize);
 
+
+    macro_rules! check_count_ones {
+        ($type:ty, $nonzero_type:ty, $check_count_ones_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::count_ones)]
+            pub fn $check_count_ones_for() {
+                let x: $nonzero_type = kani::any();
+
+                let _ = x.count_ones();
+            }
+        };
+    }
+
+    check_count_ones!(i8, core::num::NonZeroI8, nonzero_check_count_ones_for_i8);
+    check_count_ones!(i16, core::num::NonZeroI16, nonzero_check_count_ones_for_i16);
+    check_count_ones!(i32, core::num::NonZeroI32, nonzero_check_count_ones_for_i32);
+    check_count_ones!(i64, core::num::NonZeroI64, nonzero_check_count_ones_for_i64);
+    check_count_ones!(i128, core::num::NonZeroI128, check_count_ones_for_i128);
+    check_count_ones!(isize, core::num::NonZeroIsize, check_count_ones_for_isize);
+    check_count_ones!(u8, core::num::NonZeroU8, nonzero_check_count_ones_for_u8);
+    check_count_ones!(u16, core::num::NonZeroU16, nonzero_check_count_ones_for_u16);
+    check_count_ones!(u32, core::num::NonZeroU32, nonzero_check_count_ones_for_u32);
+    check_count_ones!(u64, core::num::NonZeroU64, nonzero_check_count_ones_for_u64);
+    check_count_ones!(u128, core::num::NonZeroU128, check_count_ones_for_u128);
+    check_count_ones!(usize, core::num::NonZeroUsize, check_count_ones_for_usize);
+
     macro_rules! check_swap_bytes {
         ($type:ty, $nonzero_type:ty, $check_swap_bytes_for:ident) => {
             #[kani::proof_for_contract(NonZero::<$type>::swap_bytes)]
