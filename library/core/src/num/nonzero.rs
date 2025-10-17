@@ -3248,6 +3248,60 @@ mod verify {
     nonzero_check_reverse_bits!(u128, core::num::NonZeroU128, nonzero_check_reverse_bits_for_u128);
     nonzero_check_reverse_bits!(usize, core::num::NonZeroUsize, nonzero_check_reverse_bits_for_usize);
 
+    macro_rules! check_rotate_left {
+        ($type:ty, $nonzero_type:ty, $check_from_be_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::rotate_left)]
+            pub fn $check_from_be_for() {
+                let x = kani::any::<$type>();
+                kani::assume(x != 0);
+                let x = <$nonzero_type>::new(x).unwrap();
+
+                let bits = kani::any::<u32>();
+                let _ = x.rotate_left(bits);
+            }
+        };
+    }
+
+    check_rotate_left!(i8, core::num::NonZeroI8, nonzero_check_rotate_left_for_i8);
+    check_rotate_left!(i16, core::num::NonZeroI16, nonzero_check_rotate_left_for_i16);
+    check_rotate_left!(i32, core::num::NonZeroI32, nonzero_check_rotate_left_for_i32);
+    check_rotate_left!(i64, core::num::NonZeroI64, nonzero_check_rotate_left_for_i64);
+    check_rotate_left!(i128, core::num::NonZeroI128, nonzero_check_rotate_left_for_i128);
+    check_rotate_left!(isize, core::num::NonZeroIsize, nonzero_check_rotate_left_for_isize);
+    check_rotate_left!(u8, core::num::NonZeroU8, nonzero_check_rotate_left_for_u8);
+    check_rotate_left!(u16, core::num::NonZeroU16, nonzero_check_rotate_left_for_u16);
+    check_rotate_left!(u32, core::num::NonZeroU32, nonzero_check_rotate_left_for_u32);
+    check_rotate_left!(u64, core::num::NonZeroU64, nonzero_check_rotate_left_for_u64);
+    check_rotate_left!(u128, core::num::NonZeroU128, nonzero_check_rotate_left_for_u128);
+    check_rotate_left!(usize, core::num::NonZeroUsize, nonzero_check_rotate_left_for_usize);
+
+    macro_rules! check_rotate_right {
+        ($type:ty, $nonzero_type:ty, $check_from_be_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::rotate_right)]
+            pub fn $check_from_be_for() {
+                let x = kani::any::<$type>();
+                kani::assume(x != 0);
+                let x = <$nonzero_type>::new(x).unwrap();
+
+                let bits = kani::any::<u32>();
+                let _ = x.rotate_right(bits);
+            }
+        };
+    }
+
+    check_rotate_right!(i8, core::num::NonZeroI8, nonzero_check_rotate_right_for_i8);
+    check_rotate_right!(i16, core::num::NonZeroI16, nonzero_check_rotate_right_for_i16);
+    check_rotate_right!(i32, core::num::NonZeroI32, nonzero_check_rotate_right_for_i32);
+    check_rotate_right!(i64, core::num::NonZeroI64, nonzero_check_rotate_right_for_i64);
+    check_rotate_right!(i128, core::num::NonZeroI128, nonzero_check_rotate_right_for_i128);
+    check_rotate_right!(isize, core::num::NonZeroIsize, nonzero_check_rotate_right_for_isize);
+    check_rotate_right!(u8, core::num::NonZeroU8, nonzero_check_rotate_right_for_u8);
+    check_rotate_right!(u16, core::num::NonZeroU16, nonzero_check_rotate_right_for_u16);
+    check_rotate_right!(u32, core::num::NonZeroU32, nonzero_check_rotate_right_for_u32);
+    check_rotate_right!(u64, core::num::NonZeroU64, nonzero_check_rotate_right_for_u64);
+    check_rotate_right!(u128, core::num::NonZeroU128, nonzero_check_rotate_right_for_u128);
+    check_rotate_right!(usize, core::num::NonZeroUsize, nonzero_check_rotate_right_for_usize);
+
     macro_rules! check_from_be {
         ($type:ty, $nonzero_type:ty, $check_from_be_for:ident) => {
             #[kani::proof_for_contract(NonZero::<$type>::from_be)]
