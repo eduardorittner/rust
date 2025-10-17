@@ -910,6 +910,8 @@ macro_rules! nonzero_integer {
             #[must_use = "this returns the result of the operation, \
                         without modifying the original"]
             #[inline(always)]
+            #[ensures(|result| result.get() > 0)]
+            #[ensures(|result| self == result.reverse_bits())]
             pub const fn reverse_bits(self) -> Self {
                 let result = self.get().reverse_bits();
                 // SAFETY: Reversing bits preserves the property int > 0.
@@ -3118,4 +3120,28 @@ mod verify {
     check_swap_bytes!(u64, core::num::NonZeroU64, nonzero_check_swap_bytes_for_u64);
     check_swap_bytes!(u128, core::num::NonZeroU128, nonzero_check_swap_bytes_for_u128);
     check_swap_bytes!(usize, core::num::NonZeroUsize, nonzero_check_swap_bytes_for_usize);
+
+    macro_rules! check_reverse_bits {
+        ($type:ty, $nonzero_type:ty, $check_reverse_bits_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::reverse_bits)]
+            pub fn $check_reverse_bits_for() {
+                let x: $nonzero_type = kani::any();
+
+                let _ = x.reverse_bits();
+            }
+        };
+    }
+
+    nonzero_check_reverse_bits!(i8, core::num::NonZeroI8, nonzero_check_reverse_bits_for_i8);
+    nonzero_check_reverse_bits!(i16, core::num::NonZeroI16, nonzero_check_reverse_bits_for_i16);
+    nonzero_check_reverse_bits!(i32, core::num::NonZeroI32, nonzero_check_reverse_bits_for_i32);
+    nonzero_check_reverse_bits!(i64, core::num::NonZeroI64, nonzero_check_reverse_bits_for_i64);
+    nonzero_check_reverse_bits!(i128, core::num::NonZeroI128, nonzero_check_reverse_bits_for_i128);
+    nonzero_check_reverse_bits!(isize, core::num::NonZeroIsize, nonzero_check_reverse_bits_for_isize);
+    nonzero_check_reverse_bits!(u8, core::num::NonZeroU8, nonzero_check_reverse_bits_for_u8);
+    nonzero_check_reverse_bits!(u16, core::num::NonZeroU16, nonzero_check_reverse_bits_for_u16);
+    nonzero_check_reverse_bits!(u32, core::num::NonZeroU32, nonzero_check_reverse_bits_for_u32);
+    nonzero_check_reverse_bits!(u64, core::num::NonZeroU64, nonzero_check_reverse_bits_for_u64);
+    nonzero_check_reverse_bits!(u128, core::num::NonZeroU128, nonzero_check_reverse_bits_for_u128);
+    nonzero_check_reverse_bits!(usize, core::num::NonZeroUsize, nonzero_check_reverse_bits_for_usize);
 }
