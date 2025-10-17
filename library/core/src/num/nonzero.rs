@@ -1811,6 +1811,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[must_use = "this returns the result of the operation, \
                       without modifying the original"]
         #[inline]
+        #[ensures(|result| result.get() != 0)]
         pub const fn isqrt(self) -> Self {
             let result = self.get().isqrt();
 
@@ -3108,12 +3109,22 @@ mod verify {
     check_bitor!(i64, core::num::NonZeroI64, i64, nonzero_check_bitor_for_i64_nt);
 
     // i128
-    check_bitor!(i128, core::num::NonZeroI128, core::num::NonZeroI128, nonzero_check_bitor_for_i128_nn);
+    check_bitor!(
+        i128,
+        core::num::NonZeroI128,
+        core::num::NonZeroI128,
+        nonzero_check_bitor_for_i128_nn
+    );
     check_bitor!(i128, i128, core::num::NonZeroI128, nonzero_check_bitor_for_i128_tn);
     check_bitor!(i128, core::num::NonZeroI128, i128, nonzero_check_bitor_for_i128_nt);
 
     // isize
-    check_bitor!(isize, core::num::NonZeroIsize, core::num::NonZeroIsize, nonzero_check_bitor_for_isize_nn);
+    check_bitor!(
+        isize,
+        core::num::NonZeroIsize,
+        core::num::NonZeroIsize,
+        nonzero_check_bitor_for_isize_nn
+    );
     check_bitor!(isize, isize, core::num::NonZeroIsize, nonzero_check_bitor_for_isize_tn);
     check_bitor!(isize, core::num::NonZeroIsize, isize, nonzero_check_bitor_for_isize_nt);
 
@@ -3138,12 +3149,22 @@ mod verify {
     check_bitor!(u64, core::num::NonZeroU64, u64, nonzero_check_bitor_for_u64_nt);
 
     // u128
-    check_bitor!(u128, core::num::NonZeroU128, core::num::NonZeroU128, nonzero_check_bitor_for_u128_nn);
+    check_bitor!(
+        u128,
+        core::num::NonZeroU128,
+        core::num::NonZeroU128,
+        nonzero_check_bitor_for_u128_nn
+    );
     check_bitor!(u128, u128, core::num::NonZeroU128, nonzero_check_bitor_for_u128_tn);
     check_bitor!(u128, core::num::NonZeroU128, u128, nonzero_check_bitor_for_u128_nt);
 
     // usize
-    check_bitor!(usize, core::num::NonZeroUsize, core::num::NonZeroUsize, nonzero_check_bitor_for_usize_nn);
+    check_bitor!(
+        usize,
+        core::num::NonZeroUsize,
+        core::num::NonZeroUsize,
+        nonzero_check_bitor_for_usize_nn
+    );
     check_bitor!(usize, usize, core::num::NonZeroUsize, nonzero_check_bitor_for_usize_tn);
     check_bitor!(usize, core::num::NonZeroUsize, usize, nonzero_check_bitor_for_usize_nt);
 
@@ -3277,12 +3298,10 @@ mod verify {
         ($type:ty, $nonzero_type:ty, $check_isqrt_for:ident) => {
             #[kani::proof_for_contract(NonZero::<$type>::isqrt)]
             pub fn $check_isqrt_for() {
-                let x = kani::any::<$type>();
-                kani::assume(x != 0);
-                let x = <$nonzero_type>::new(x).unwrap();
+                let x: $nonzero_type = kani::any();
                 let _ = x.isqrt();
             }
-        }
+        };
     }
 
     check_isqrt!(u8, core::num::NonZeroU8, check_isqrt_for_u8);
@@ -3291,6 +3310,25 @@ mod verify {
     check_isqrt!(u64, core::num::NonZeroU64, check_isqrt_for_u64);
     check_isqrt!(u128, core::num::NonZeroU128, check_isqrt_for_u128);
     check_isqrt!(usize, core::num::NonZeroUsize, check_isqrt_for_usize);
+
+    macro_rules! check_midpoint {
+        ($type:ty, $nonzero_type:ty, $check_midpoint_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::midpoint)]
+            pub fn $check_midpoint_for() {
+                let rhs: $nonzero_type = kani::any();
+                let lhs: $nonzero_type = kani::any();
+
+                let _ = lhs.midpoint(rhs);
+            }
+        };
+    }
+
+    check_midpoint!(u8, core::num::NonZeroU8, check_midpoint_for_u8);
+    check_midpoint!(u16, core::num::NonZeroU16, check_midpoint_for_u16);
+    check_midpoint!(u32, core::num::NonZeroU32, check_midpoint_for_u32);
+    check_midpoint!(u64, core::num::NonZeroU64, check_midpoint_for_u64);
+    check_midpoint!(u128, core::num::NonZeroU128, check_midpoint_for_u128);
+    check_midpoint!(usize, core::num::NonZeroUsize, check_midpoint_for_usize);
 
     macro_rules! check_from_be {
         ($type:ty, $nonzero_type:ty, $check_from_be_for:ident) => {
