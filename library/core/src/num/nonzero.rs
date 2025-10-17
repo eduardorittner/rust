@@ -1428,6 +1428,7 @@ macro_rules! nonzero_integer_signedness_dependent_impls {
             type Output = Self;
 
             #[inline]
+            #[ensures(|result| result.get() != 0)]
             fn neg(self) -> Self {
                 // SAFETY: negation of nonzero cannot yield zero values.
                 unsafe { Self::new_unchecked(self.get().neg()) }
@@ -2121,6 +2122,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[inline]
         #[stable(feature = "nonzero_negation_ops", since = "1.71.0")]
         #[rustc_const_stable(feature = "nonzero_negation_ops", since = "1.71.0")]
+        #[ensures(|result| result.get() != 0)]
         pub const fn checked_neg(self) -> Option<Self> {
             if let Some(result) = self.get().checked_neg() {
                 // SAFETY: negation of nonzero cannot yield zero values.
@@ -2153,6 +2155,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[inline]
         #[stable(feature = "nonzero_negation_ops", since = "1.71.0")]
         #[rustc_const_stable(feature = "nonzero_negation_ops", since = "1.71.0")]
+        #[ensures(|result| result.get() != 0)]
         pub const fn overflowing_neg(self) -> (Self, bool) {
             let (result, overflow) = self.get().overflowing_neg();
             // SAFETY: negation of nonzero cannot yield zero values.
@@ -2186,6 +2189,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[inline]
         #[stable(feature = "nonzero_negation_ops", since = "1.71.0")]
         #[rustc_const_stable(feature = "nonzero_negation_ops", since = "1.71.0")]
+        #[ensures(|result| result.get() != 0)]
         pub const fn saturating_neg(self) -> Self {
             if let Some(result) = self.checked_neg() {
                 return result;
@@ -2218,6 +2222,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[inline]
         #[stable(feature = "nonzero_negation_ops", since = "1.71.0")]
         #[rustc_const_stable(feature = "nonzero_negation_ops", since = "1.71.0")]
+        #[ensures(|result| result.get() != 0)]
         pub const fn wrapping_neg(self) -> Self {
             let result = self.get().wrapping_neg();
             // SAFETY: negation of nonzero cannot yield zero values.
@@ -2750,6 +2755,23 @@ mod verify {
             }
         };
     }
+
+    macro_rules! check_neg {
+        ($type:ty, $nonzero_type:ty, $check_neg_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$t>::neg)]
+            pub fn $nonzero_check_mul_for() {
+                let x = kani::any::<$t>();
+
+                kani::assume(x != 0);
+
+                let x = <$nonzero_type>::new(x).unwrap();
+
+                let _ = x.neg();
+            }
+        };
+    }
+
+    check_neg!(i8, core::num::NonZeroI8, check_neg_i8);
 
     // Use for NonZero what already worked well for general numeric types (see num/mod.rs)
     macro_rules! check_mul_unchecked_intervals {
