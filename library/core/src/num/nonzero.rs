@@ -393,6 +393,13 @@ where
     #[rustc_const_stable(feature = "const_nonzero_int_methods", since = "1.47.0")]
     #[must_use]
     #[inline]
+    #[ensures(|result| {
+        let size = core::mem::size_of::<T>();
+        let ptr = &n as *const T as *const u8;
+        let slice = unsafe {core::slice::from_raw_parts(ptr, size)};
+        let is_zero = slice.iter().all(|&byte| byte == 0);
+        (result.is_some() && !is_zero) || (result.is_none() && is_zero)
+    })]
     pub const fn new(n: T) -> Option<Self> {
         // SAFETY: Memory layout optimization guarantees that `Option<NonZero<T>>` has
         //         the same layout and size as `T`, with `0` representing `None`.
@@ -2443,6 +2450,29 @@ nonzero_integer! {
 #[cfg(kani)]
 mod verify {
     use super::*;
+
+    macro_rules! nonzero_check_new {
+        ($t:ty, $nonzero_type:ty, $nonzero_check_new_for:ident) => {
+            #[kani::proof_for_contract(NonZero::new)]
+            pub fn $nonzero_check_new_for() {
+                let x: $t = kani::any();
+                let _ = <$nonzero_type>::new(x);
+            }
+        };
+    }
+
+    nonzero_check_new!(i8, core::num::NonZeroI8, nonzero_check_new_for_i8);
+    nonzero_check_new!(i16, core::num::NonZeroI16, nonzero_check_new_for_16);
+    nonzero_check_new!(i32, core::num::NonZeroI32, nonzero_check_new_for_32);
+    nonzero_check_new!(i64, core::num::NonZeroI64, nonzero_check_new_for_64);
+    nonzero_check_new!(i128, core::num::NonZeroI128, nonzero_check_new_for_128);
+    nonzero_check_new!(isize, core::num::NonZeroIsize, nonzero_check_new_for_isize);
+    nonzero_check_new!(u8, core::num::NonZeroU8, nonzero_check_new_for_u8);
+    nonzero_check_new!(u16, core::num::NonZeroU16, nonzero_check_new_for_u16);
+    nonzero_check_new!(u32, core::num::NonZeroU32, nonzero_check_new_for_u32);
+    nonzero_check_new!(u64, core::num::NonZeroU64, nonzero_check_new_for_u64);
+    nonzero_check_new!(u128, core::num::NonZeroU128, nonzero_check_new_for_u128);
+    nonzero_check_new!(usize, core::num::NonZeroUsize, nonzero_check_new_for_usize);
 
     macro_rules! nonzero_check {
         ($t:ty, $nonzero_type:ty, $nonzero_check_new_unchecked_for:ident) => {
