@@ -2759,7 +2759,7 @@ mod verify {
     macro_rules! check_neg {
         ($type:ty, $nonzero_type:ty, $check_neg_for:ident) => {
             #[kani::proof_for_contract(NonZero::<$t>::neg)]
-            pub fn $nonzero_check_mul_for() {
+            pub fn $check_neg_for() {
                 let x = kani::any::<$t>();
 
                 kani::assume(x != 0);
@@ -2772,6 +2772,11 @@ mod verify {
     }
 
     check_neg!(i8, core::num::NonZeroI8, check_neg_i8);
+    check_neg!(i16, core::num::NonZeroI16, check_neg_i16);
+    check_neg!(i32, core::num::NonZeroI32, check_neg_i32);
+    check_neg!(i64, core::num::NonZeroI64, check_neg_i64);
+    check_neg!(i128, core::num::NonZeroI128, check_neg_i128);
+    check_neg!(isize, core::num::NonZeroIsize, check_neg_isize);
 
     // Use for NonZero what already worked well for general numeric types (see num/mod.rs)
     macro_rules! check_mul_unchecked_intervals {
