@@ -2122,7 +2122,9 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[inline]
         #[stable(feature = "nonzero_negation_ops", since = "1.71.0")]
         #[rustc_const_stable(feature = "nonzero_negation_ops", since = "1.71.0")]
-        #[ensures(|result| result.get() != 0)]
+        #[ensures(|result| {
+            result.is_some_and(|result| result.get() != 0) || result.is_none()
+        })]
         pub const fn checked_neg(self) -> Option<Self> {
             if let Some(result) = self.get().checked_neg() {
                 // SAFETY: negation of nonzero cannot yield zero values.
@@ -2155,7 +2157,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[inline]
         #[stable(feature = "nonzero_negation_ops", since = "1.71.0")]
         #[rustc_const_stable(feature = "nonzero_negation_ops", since = "1.71.0")]
-        #[ensures(|result| result.get() != 0)]
+        #[ensures(|result| result.0.get() != 0)]
         pub const fn overflowing_neg(self) -> (Self, bool) {
             let (result, overflow) = self.get().overflowing_neg();
             // SAFETY: negation of nonzero cannot yield zero values.
@@ -2758,9 +2760,9 @@ mod verify {
 
     macro_rules! check_neg {
         ($type:ty, $nonzero_type:ty, $check_neg_for:ident) => {
-            #[kani::proof_for_contract(NonZero::<$t>::neg)]
+            #[kani::proof]
             pub fn $check_neg_for() {
-                let x = kani::any::<$t>();
+                let x = kani::any::<$type>();
 
                 kani::assume(x != 0);
 
