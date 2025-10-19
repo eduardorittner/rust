@@ -1750,6 +1750,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[doc(alias = "average_floor")]
         #[doc(alias = "average")]
         #[inline]
+        #[ensures(|result| result.get() != 0)]
         pub const fn midpoint(self, rhs: Self) -> Self {
             // SAFETY: The only way to get `0` with midpoint is to have two opposite or
             // near opposite numbers: (-5, 5), (0, 1), (0, 0) which is impossible because
@@ -3310,6 +3311,25 @@ mod verify {
     check_isqrt!(u64, core::num::NonZeroU64, check_isqrt_for_u64);
     check_isqrt!(u128, core::num::NonZeroU128, check_isqrt_for_u128);
     check_isqrt!(usize, core::num::NonZeroUsize, check_isqrt_for_usize);
+
+    macro_rules! check_midpoint {
+        ($type:ty, $nonzero_type:ty, $check_midpoint_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::midpoint)]
+            pub fn $check_midpoint_for() {
+                let rhs: $nonzero_type = kani::any();
+                let lhs: $nonzero_type = kani::any();
+
+                let _ = lhs.midpoint(rhs);
+            }
+        };
+    }
+
+    check_midpoint!(u8, core::num::NonZeroU8, check_midpoint_for_u8);
+    check_midpoint!(u16, core::num::NonZeroU16, check_midpoint_for_u16);
+    check_midpoint!(u32, core::num::NonZeroU32, check_midpoint_for_u32);
+    check_midpoint!(u64, core::num::NonZeroU64, check_midpoint_for_u64);
+    check_midpoint!(u128, core::num::NonZeroU128, check_midpoint_for_u128);
+    check_midpoint!(usize, core::num::NonZeroUsize, check_midpoint_for_usize);
 
     macro_rules! check_midpoint {
         ($type:ty, $nonzero_type:ty, $check_midpoint_for:ident) => {
