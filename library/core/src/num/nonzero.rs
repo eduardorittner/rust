@@ -1112,6 +1112,18 @@ macro_rules! nonzero_integer {
             #[must_use = "this returns the result of the operation, \
                           without modifying the original"]
             #[inline]
+            #[ensures(|result| {
+                match result {
+                    Some(val) => val.get() != 0,
+                    None => {
+                        if self.get() < 0 {
+                            self.get() <= $Int::MAX / other.get()
+                        } else {
+                            self.get() >= $Int::MIN / other.get()
+                        }
+                    }
+                }
+            })]
             pub const fn checked_mul(self, other: Self) -> Option<Self> {
                 if let Some(result) = self.get().checked_mul(other.get()) {
                     // SAFETY:
@@ -2773,6 +2785,37 @@ mod verify {
     nonzero_check_clamp_panic!(core::num::NonZeroU64, nonzero_check_clamp_panic_for_u64);
     nonzero_check_clamp_panic!(core::num::NonZeroU128, nonzero_check_clamp_panic_for_u128);
     nonzero_check_clamp_panic!(core::num::NonZeroUsize, nonzero_check_clamp_panic_for_usize);
+
+    macro_rules! check_checked_mul {
+        ($t:ty, $nonzero_type:ty, $check_checked_mul_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$t>::checked_mul)]
+            pub fn $check_checked_mul_for() {
+                let x = kani::any::<$t>();
+                let y = kani::any::<$t>();
+
+                kani::assume(x != 0);
+                kani::assume(y != 0);
+
+                let x = <$nonzero_type>::new(x).unwrap();
+                let y = <$nonzero_type>::new(y).unwrap();
+
+                x.checked_mul(y);
+            }
+        };
+    }
+
+    check_checked_mul!(i8, core::num::NonZeroI8, check_checked_mul_for_i8);
+    check_checked_mul!(i16, core::num::NonZeroI16, check_checked_mul_for_i16);
+    check_checked_mul!(i32, core::num::NonZeroI32, check_checked_mul_for_i32);
+    check_checked_mul!(i64, core::num::NonZeroI64, check_checked_mul_for_i64);
+    check_checked_mul!(i128, core::num::NonZeroI128, check_checked_mul_for_i128);
+    check_checked_mul!(isize, core::num::NonZeroIsize, check_checked_mul_for_isize);
+    check_checked_mul!(u8, core::num::NonZeroU8, check_checked_mul_for_u8);
+    check_checked_mul!(u16, core::num::NonZeroU16, check_checked_mul_for_u16);
+    check_checked_mul!(u32, core::num::NonZeroU32, check_checked_mul_for_u32);
+    check_checked_mul!(u64, core::num::NonZeroU64, check_checked_mul_for_u64);
+    check_checked_mul!(u128, core::num::NonZeroU128, check_checked_mul_for_u128);
+    check_checked_mul!(usize, core::num::NonZeroUsize, check_checked_mul_for_usize);
 
     macro_rules! check_mul_unchecked_small {
         ($t:ty, $nonzero_type:ty, $nonzero_check_unchecked_mul_for:ident) => {
