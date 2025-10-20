@@ -1783,6 +1783,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[must_use = "this returns the result of the operation, \
                       without modifying the original"]
         #[inline]
+        #[ensures(|result| result.get() != 0)]
         pub const fn isqrt(self) -> Self {
             let result = self.get().isqrt();
 
