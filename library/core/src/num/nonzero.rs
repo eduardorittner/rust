@@ -12,7 +12,7 @@ use crate::marker::{Freeze, StructuralPartialEq};
 use crate::ops::{BitOr, BitOrAssign, Div, DivAssign, Neg, Rem, RemAssign};
 use crate::panic::{RefUnwindSafe, UnwindSafe};
 use crate::str::FromStr;
-use crate::{fmt, intrinsics, ptr, ub_checks};
+use crate::{fmt, intrinsics, mem, ptr, ub_checks};
 
 /// A marker trait for primitive types which can be zero.
 ///
@@ -393,6 +393,19 @@ where
     #[rustc_const_stable(feature = "const_nonzero_int_methods", since = "1.47.0")]
     #[must_use]
     #[inline]
+    #[ensures(|result| {
+        let size = core::mem::size_of::<T>();
+        let ptr = &n as *const T as *const u8;
+        let slice = unsafe {core::slice::from_raw_parts(ptr, size)};
+        let is_zero = slice.iter().all(|&byte| byte == 0);
+
+        let same_align = mem::align_of::<T>() == mem::align_of::<Option<NonZero<T>>>();
+        let same_size = mem::size_of::<T>() == mem::size_of::<Option<NonZero<T>>>();
+        let some_and_nonzero = result.is_some() && !is_zero;
+        let none_and_zero = result.is_none() && is_zero;
+
+        (none_and_zero || some_and_nonzero) && same_size && same_align
+    })]
     pub const fn new(n: T) -> Option<Self> {
         // SAFETY: Memory layout optimization guarantees that `Option<NonZero<T>>` has
         //         the same layout and size as `T`, with `0` representing `None`.
