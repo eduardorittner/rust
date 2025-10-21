@@ -460,6 +460,19 @@ where
     #[unstable(feature = "nonzero_from_mut", issue = "106290")]
     #[must_use]
     #[inline]
+    #[ensures(|result| {
+        let size = core::mem::size_of::<T>();
+        let ptr = n as *const T as *const u8;
+        let slice = unsafe {core::slice::from_raw_parts(ptr, size)};
+        let is_zero = slice.iter().all(|&byte| byte == 0);
+
+        let same_align = mem::align_of::<T>() == mem::align_of::<Option<NonZero<T>>>();
+        let same_size = mem::size_of::<T>() == mem::size_of::<Option<NonZero<T>>>();
+        let some_and_nonzero = result.is_some() && !is_zero;
+        let none_and_zero = result.is_none() && is_zero;
+
+        (none_and_zero || some_and_nonzero) && same_size && same_align
+    })]
     pub fn from_mut(n: &mut T) -> Option<&mut Self> {
         // SAFETY: Memory layout optimization guarantees that `Option<NonZero<T>>` has
         //         the same layout and size as `T`, with `0` representing `None`.
@@ -2506,6 +2519,29 @@ mod verify {
     check_new!(u64, core::num::NonZeroU64, check_new_for_u64);
     check_new!(u128, core::num::NonZeroU128, check_new_for_u128);
     check_new!(usize, core::num::NonZeroUsize, check_new_for_usize);
+
+    macro_rules! check_from_mut {
+        ($t:ty, $nonzero_type:ty, $check_from_mut_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$t>::from_mut)]
+            pub fn $check_from_mut_for() {
+                let mut x: $t = kani::any();
+                <$nonzero_type>::from_mut(&mut x);
+            }
+        };
+    }
+
+    check_from_mut!(i8, core::num::NonZeroI8, check_from_mut_for_i8);
+    check_from_mut!(i16, core::num::NonZeroI16, check_from_mut_for_16);
+    check_from_mut!(i32, core::num::NonZeroI32, check_from_mut_for_32);
+    check_from_mut!(i64, core::num::NonZeroI64, check_from_mut_for_64);
+    check_from_mut!(i128, core::num::NonZeroI128, check_from_mut_for_128);
+    check_from_mut!(isize, core::num::NonZeroIsize, check_from_mut_for_isize);
+    check_from_mut!(u8, core::num::NonZeroU8, check_from_mut_for_u8);
+    check_from_mut!(u16, core::num::NonZeroU16, check_from_mut_for_u16);
+    check_from_mut!(u32, core::num::NonZeroU32, check_from_mut_for_u32);
+    check_from_mut!(u64, core::num::NonZeroU64, check_from_mut_for_u64);
+    check_from_mut!(u128, core::num::NonZeroU128, check_from_mut_for_u128);
+    check_from_mut!(usize, core::num::NonZeroUsize, check_from_mut_for_usize);
 
     macro_rules! nonzero_check_from_mut_unchecked {
         ($t:ty, $nonzero_type:ty, $harness_name:ident) => {
