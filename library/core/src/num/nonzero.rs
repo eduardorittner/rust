@@ -960,6 +960,7 @@ macro_rules! nonzero_integer {
             #[unstable(feature = "nonzero_bitwise", issue = "128281")]
             #[must_use]
             #[inline(always)]
+            #[ensures(|result| result.get() != 0)]
             pub const fn from_be(x: Self) -> Self {
                 let result = $Int::from_be(x.get());
                 // SAFETY: Shuffling bytes preserves the property int > 0.
@@ -993,6 +994,7 @@ macro_rules! nonzero_integer {
             #[unstable(feature = "nonzero_bitwise", issue = "128281")]
             #[must_use]
             #[inline(always)]
+            #[ensures(|result| result.get() != 0)]
             pub const fn from_le(x: Self) -> Self {
                 let result = $Int::from_le(x.get());
                 // SAFETY: Shuffling bytes preserves the property int > 0.
@@ -1026,6 +1028,7 @@ macro_rules! nonzero_integer {
             #[must_use = "this returns the result of the operation, \
                         without modifying the original"]
             #[inline(always)]
+            #[ensures(|result| result.get() != 0)]
             pub const fn to_be(self) -> Self {
                 let result = self.get().to_be();
                 // SAFETY: Shuffling bytes preserves the property int > 0.
@@ -1059,6 +1062,7 @@ macro_rules! nonzero_integer {
             #[must_use = "this returns the result of the operation, \
                         without modifying the original"]
             #[inline(always)]
+            #[ensures(|result| result.get() != 0)]
             pub const fn to_le(self) -> Self {
                 let result = self.get().to_le();
                 // SAFETY: Shuffling bytes preserves the property int > 0.
@@ -1796,7 +1800,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[must_use = "this returns the result of the operation, \
                       without modifying the original"]
         #[inline]
-        #[ensures(|result| result.get != 0)]
+        #[ensures(|result| result.get() != 0)]
         pub const fn isqrt(self) -> Self {
             let result = self.get().isqrt();
 
