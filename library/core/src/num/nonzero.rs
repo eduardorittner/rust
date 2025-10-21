@@ -2484,6 +2484,29 @@ mod verify {
     nonzero_check!(u128, core::num::NonZeroU128, nonzero_check_new_unchecked_for_u128);
     nonzero_check!(usize, core::num::NonZeroUsize, nonzero_check_new_unchecked_for_usize);
 
+    macro_rules! check_new {
+        ($t:ty, $nonzero_type:ty, $check_new_for:ident) => {
+            #[kani::proof_for_contract(NonZero::new)]
+            pub fn $check_new_for() {
+                let x: $t = kani::any();
+                <$nonzero_type>::new(x);
+            }
+        };
+    }
+
+    check_new!(i8, core::num::NonZeroI8, check_new_for_i8);
+    check_new!(i16, core::num::NonZeroI16, check_new_for_16);
+    check_new!(i32, core::num::NonZeroI32, check_new_for_32);
+    check_new!(i64, core::num::NonZeroI64, check_new_for_64);
+    check_new!(i128, core::num::NonZeroI128, check_new_for_128);
+    check_new!(isize, core::num::NonZeroIsize, check_new_for_isize);
+    check_new!(u8, core::num::NonZeroU8, check_new_for_u8);
+    check_new!(u16, core::num::NonZeroU16, check_new_for_u16);
+    check_new!(u32, core::num::NonZeroU32, check_new_for_u32);
+    check_new!(u64, core::num::NonZeroU64, check_new_for_u64);
+    check_new!(u128, core::num::NonZeroU128, check_new_for_u128);
+    check_new!(usize, core::num::NonZeroUsize, check_new_for_usize);
+
     macro_rules! nonzero_check_from_mut_unchecked {
         ($t:ty, $nonzero_type:ty, $harness_name:ident) => {
             #[kani::proof_for_contract(NonZero::<$t>::from_mut_unchecked)]
