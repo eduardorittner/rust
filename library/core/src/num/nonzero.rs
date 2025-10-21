@@ -1734,6 +1734,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[doc(alias = "average_floor")]
         #[doc(alias = "average")]
         #[inline]
+        #[ensures(|result| result.get() != 0)]
         pub const fn midpoint(self, rhs: Self) -> Self {
             // SAFETY: The only way to get `0` with midpoint is to have two opposite or
             // near opposite numbers: (-5, 5), (0, 1), (0, 0) which is impossible because
