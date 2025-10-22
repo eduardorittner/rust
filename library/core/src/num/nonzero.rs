@@ -2159,6 +2159,9 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[inline]
         #[stable(feature = "nonzero_negation_ops", since = "1.71.0")]
         #[rustc_const_stable(feature = "nonzero_negation_ops", since = "1.71.0")]
+        #[ensures(|result| {
+            result.is_some_and(|value| value.get() != 0) || result.is_none() && self.get() == $Int::MIN
+        })]
         pub const fn checked_neg(self) -> Option<Self> {
             if let Some(result) = self.get().checked_neg() {
                 // SAFETY: negation of nonzero cannot yield zero values.
@@ -2191,6 +2194,13 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[inline]
         #[stable(feature = "nonzero_negation_ops", since = "1.71.0")]
         #[rustc_const_stable(feature = "nonzero_negation_ops", since = "1.71.0")]
+        #[ensures(|(result, overflow)| {
+            result.get() != 0 && if *overflow {
+                self.get() == $Int::MIN
+            } else {
+                self.get() != $Int::MIN
+            }
+        })]
         pub const fn overflowing_neg(self) -> (Self, bool) {
             let (result, overflow) = self.get().overflowing_neg();
             // SAFETY: negation of nonzero cannot yield zero values.
@@ -2224,6 +2234,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[inline]
         #[stable(feature = "nonzero_negation_ops", since = "1.71.0")]
         #[rustc_const_stable(feature = "nonzero_negation_ops", since = "1.71.0")]
+        #[ensures(|result| result.get() != 0)]
         pub const fn saturating_neg(self) -> Self {
             if let Some(result) = self.checked_neg() {
                 return result;
@@ -3233,4 +3244,58 @@ mod verify {
     nonzero_check_add!(u64, core::num::NonZeroU64, nonzero_check_unchecked_add_for_u64);
     nonzero_check_add!(u128, core::num::NonZeroU128, nonzero_check_unchecked_add_for_u128);
     nonzero_check_add!(usize, core::num::NonZeroUsize, nonzero_check_unchecked_add_for_usize);
+
+    macro_rules! check_checked_neg {
+        ($type:ty, $nonzero_type:ty, $check_checked_neg_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::checked_neg)]
+            pub fn $check_checked_neg_for() {
+                let x: $nonzero_type = kani::any();
+
+                x.checked_neg();
+            }
+        };
+    }
+
+    check_checked_neg!(i8, core::num::NonZeroI8, check_checked_neg_for_i8);
+    check_checked_neg!(i16, core::num::NonZeroI16, check_checked_neg_for_16);
+    check_checked_neg!(i32, core::num::NonZeroI32, check_checked_neg_for_32);
+    check_checked_neg!(i64, core::num::NonZeroI64, check_checked_neg_for_64);
+    check_checked_neg!(i128, core::num::NonZeroI128, check_checked_neg_for_128);
+    check_checked_neg!(isize, core::num::NonZeroIsize, check_checked_neg_for_isize);
+
+    macro_rules! check_overflowing_neg {
+        ($type:ty, $nonzero_type:ty, $check_overflowing_neg_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::overflowing_neg)]
+            pub fn $check_overflowing_neg_for() {
+                let x: $nonzero_type = kani::any();
+
+                x.overflowing_neg();
+            }
+        };
+    }
+
+    check_overflowing_neg!(i8, core::num::NonZeroI8, check_overflowing_neg_for_i8);
+    check_overflowing_neg!(i16, core::num::NonZeroI16, check_overflowing_neg_for_16);
+    check_overflowing_neg!(i32, core::num::NonZeroI32, check_overflowing_neg_for_32);
+    check_overflowing_neg!(i64, core::num::NonZeroI64, check_overflowing_neg_for_64);
+    check_overflowing_neg!(i128, core::num::NonZeroI128, check_overflowing_neg_for_128);
+    check_overflowing_neg!(isize, core::num::NonZeroIsize, check_overflowing_neg_for_isize);
+
+    macro_rules! check_saturating_neg {
+        ($type:ty, $nonzero_type:ty, $check_saturating_neg_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::saturating_neg)]
+            pub fn $check_saturating_neg_for() {
+                let x: $nonzero_type = kani::any();
+
+                x.saturating_neg();
+            }
+        };
+    }
+
+    check_saturating_neg!(i8, core::num::NonZeroI8, check_saturating_neg_for_i8);
+    check_saturating_neg!(i16, core::num::NonZeroI16, check_saturating_neg_for_16);
+    check_saturating_neg!(i32, core::num::NonZeroI32, check_saturating_neg_for_32);
+    check_saturating_neg!(i64, core::num::NonZeroI64, check_saturating_neg_for_64);
+    check_saturating_neg!(i128, core::num::NonZeroI128, check_saturating_neg_for_128);
+    check_saturating_neg!(isize, core::num::NonZeroIsize, check_saturating_neg_for_isize);
 }
