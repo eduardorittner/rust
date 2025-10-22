@@ -2057,6 +2057,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[must_use = "this returns the result of the operation, \
                       without modifying the original"]
         #[inline]
+        #[ensures(|result| result.get() != 0)]
         pub const fn wrapping_abs(self) -> Self {
             // SAFETY: absolute value of nonzero cannot yield zero values.
             unsafe { Self::new_unchecked(self.get().wrapping_abs()) }
@@ -2952,6 +2953,24 @@ mod verify {
     check_saturating_abs!(i64, core::num::NonZeroI64, check_saturating_abs_for_64);
     check_saturating_abs!(i128, core::num::NonZeroI128, check_saturating_abs_for_128);
     check_saturating_abs!(isize, core::num::NonZeroIsize, check_saturating_abs_for_isize);
+
+    macro_rules! check_wrapping_abs {
+        ($type:ty, $nonzero_type:ty, $check_wrapping_abs_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::wrapping_abs)]
+            pub fn $check_wrapping_abs_for() {
+                let x: $nonzero_type = kani::any();
+
+                x.wrapping_abs();
+            }
+        };
+    }
+
+    check_wrapping_abs!(i8, core::num::NonZeroI8, check_wrapping_abs_for_i8);
+    check_wrapping_abs!(i16, core::num::NonZeroI16, check_wrapping_abs_for_16);
+    check_wrapping_abs!(i32, core::num::NonZeroI32, check_wrapping_abs_for_32);
+    check_wrapping_abs!(i64, core::num::NonZeroI64, check_wrapping_abs_for_64);
+    check_wrapping_abs!(i128, core::num::NonZeroI128, check_wrapping_abs_for_128);
+    check_wrapping_abs!(isize, core::num::NonZeroIsize, check_wrapping_abs_for_isize);
 
     macro_rules! check_checked_mul {
         ($t:ty, $nonzero_type:ty, $check_mul_for:ident) => {
