@@ -1229,6 +1229,9 @@ macro_rules! nonzero_integer {
             #[must_use = "this returns the result of the operation, \
                           without modifying the original"]
             #[inline]
+            #[ensures(|result| {
+                result.is_some_and(|value| value.get() != 0) || result.is_none()
+            })]
             pub const fn checked_pow(self, other: u32) -> Option<Self> {
                 if let Some(result) = self.get().checked_pow(other) {
                     // SAFETY:
@@ -1277,6 +1280,7 @@ macro_rules! nonzero_integer {
             #[must_use = "this returns the result of the operation, \
                           without modifying the original"]
             #[inline]
+            #[ensures(|result| result.get() != 0)]
             pub const fn saturating_pow(self, other: u32) -> Self {
                 // SAFETY:
                 // - `saturating_pow` returns `u*::MAX`/`i*::MAX`/`i*::MIN` on overflow/underflow,
@@ -3433,6 +3437,44 @@ mod verify {
     check_wrapping_neg!(i64, core::num::NonZeroI64, check_wrapping_neg_for_64);
     check_wrapping_neg!(i128, core::num::NonZeroI128, check_wrapping_neg_for_128);
     check_wrapping_neg!(isize, core::num::NonZeroIsize, check_wrapping_neg_for_isize);
+
+    macro_rules! check_saturating_pow {
+        ($type:ty, $nonzero_type:ty, $check_saturating_pow_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::saturating_pow)]
+            pub fn $check_saturating_pow_for() {
+                let x: $nonzero_type = kani::any();
+                let pow: u32 = kani::any();
+
+                x.saturating_pow(pow);
+            }
+        };
+    }
+
+    check_saturating_pow!(i8, core::num::NonZeroI8, check_saturating_pow_for_i8);
+    check_saturating_pow!(i16, core::num::NonZeroI16, check_saturating_pow_for_16);
+    check_saturating_pow!(i32, core::num::NonZeroI32, check_saturating_pow_for_32);
+    check_saturating_pow!(i64, core::num::NonZeroI64, check_saturating_pow_for_64);
+    check_saturating_pow!(i128, core::num::NonZeroI128, check_saturating_pow_for_128);
+    check_saturating_pow!(isize, core::num::NonZeroIsize, check_saturating_pow_for_isize);
+
+    macro_rules! check_checked_pow {
+        ($type:ty, $nonzero_type:ty, $check_checked_pow_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::checked_pow)]
+            pub fn $check_checked_pow_for() {
+                let x: $nonzero_type = kani::any();
+                let pow: u32 = kani::any();
+
+                x.checked_pow(pow);
+            }
+        };
+    }
+
+    check_checked_pow!(i8, core::num::NonZeroI8, check_checked_pow_for_i8);
+    check_checked_pow!(i16, core::num::NonZeroI16, check_checked_pow_for_16);
+    check_checked_pow!(i32, core::num::NonZeroI32, check_checked_pow_for_32);
+    check_checked_pow!(i64, core::num::NonZeroI64, check_checked_pow_for_64);
+    check_checked_pow!(i128, core::num::NonZeroI128, check_checked_pow_for_128);
+    check_checked_pow!(isize, core::num::NonZeroIsize, check_checked_pow_for_isize);
 
     macro_rules! check_checked_next_power_of_two {
         ($type:ty, $nonzero_type:ty, $check_checked_next_power_of_two:ident) => {
