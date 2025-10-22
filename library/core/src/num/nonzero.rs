@@ -1649,6 +1649,9 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[must_use = "this returns the result of the operation, \
                       without modifying the original"]
         #[inline]
+        #[ensures(|result| {
+            result.is_some_and(|value| value.get() != 0) || result.is_none()
+        })]
         pub const fn checked_next_power_of_two(self) -> Option<Self> {
             if let Some(nz) = self.get().checked_next_power_of_two() {
                 // SAFETY: The next power of two is positive
@@ -3392,4 +3395,47 @@ mod verify {
     check_saturating_neg!(i64, core::num::NonZeroI64, check_saturating_neg_for_64);
     check_saturating_neg!(i128, core::num::NonZeroI128, check_saturating_neg_for_128);
     check_saturating_neg!(isize, core::num::NonZeroIsize, check_saturating_neg_for_isize);
+
+    macro_rules! check_checked_next_power_of_two {
+        ($type:ty, $nonzero_type:ty, $check_checked_next_power_of_two:ident) => {
+            #[kani::proof]
+            pub fn $check_checked_next_power_of_two() {
+                let x: $nonzero_type = kani::any();
+                let y: $nonzero_type = kani::any();
+
+                x.check_checked_next_power_of_two(y);
+            }
+        };
+    }
+
+    check_checked_next_power_of_two!(
+        u8,
+        core::num::NonZeroU8,
+        check_checked_next_power_of_two_for_u8
+    );
+    check_checked_next_power_of_two!(
+        u16,
+        core::num::NonZeroU16,
+        check_checked_next_power_of_two_for_u16
+    );
+    check_checked_next_power_of_two!(
+        u32,
+        core::num::NonZeroU32,
+        check_checked_next_power_of_two_for_u32
+    );
+    check_checked_next_power_of_two!(
+        u64,
+        core::num::NonZeroU64,
+        check_checked_next_power_of_two_for_u64
+    );
+    check_checked_next_power_of_two!(
+        u128,
+        core::num::NonZeroU128,
+        check_checked_next_power_of_two_for_u128
+    );
+    check_checked_next_power_of_two!(
+        usize,
+        core::num::NonZeroUsize,
+        check_checked_next_power_of_two_for_usize
+    );
 }
