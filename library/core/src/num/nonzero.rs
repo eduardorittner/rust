@@ -2787,6 +2787,46 @@ mod verify {
     nonzero_check_clamp_panic!(core::num::NonZeroU128, nonzero_check_clamp_panic_for_u128);
     nonzero_check_clamp_panic!(core::num::NonZeroUsize, nonzero_check_clamp_panic_for_usize);
 
+    macro_rules! check_neg {
+        ($type:ty, $nonzero_type:ty, $check_neg_for:ident) => {
+            #[kani::proof]
+            pub fn $check_neg_for() {
+                let x: $nonzero_type = kani::any();
+
+                kani::assume(x.get() != <$type>::MIN);
+
+                let result = <$nonzero_type as Neg>::neg(x);
+                kani::assert(result.get() != 0, "negation of non-zero value should be non-zero");
+            }
+        };
+    }
+
+    check_neg!(i8, core::num::NonZeroI8, check_neg_for_i8);
+    check_neg!(i16, core::num::NonZeroI16, check_neg_for_16);
+    check_neg!(i32, core::num::NonZeroI32, check_neg_for_32);
+    check_neg!(i64, core::num::NonZeroI64, check_neg_for_64);
+    check_neg!(i128, core::num::NonZeroI128, check_neg_for_128);
+    check_neg!(isize, core::num::NonZeroIsize, check_neg_for_isize);
+
+    macro_rules! check_neg_panic {
+        ($type:ty, $nonzero_type:ty, $check_neg_for:ident) => {
+            #[kani::proof]
+            #[kani::should_panic]
+            pub fn $check_neg_for() {
+                let x = unsafe { <$nonzero_type>::new_unchecked(<$type>::MIN) };
+
+                <$nonzero_type as Neg>::neg(x);
+            }
+        };
+    }
+
+    check_neg_panic!(i8, core::num::NonZeroI8, check_neg_panic_for_i8);
+    check_neg_panic!(i16, core::num::NonZeroI16, check_neg_panic_for_16);
+    check_neg_panic!(i32, core::num::NonZeroI32, check_neg_panic_for_32);
+    check_neg_panic!(i64, core::num::NonZeroI64, check_neg_panic_for_64);
+    check_neg_panic!(i128, core::num::NonZeroI128, check_neg_panic_for_128);
+    check_neg_panic!(isize, core::num::NonZeroIsize, check_neg_panic_for_isize);
+
     macro_rules! check_mul_unchecked_small {
         ($t:ty, $nonzero_type:ty, $nonzero_check_unchecked_mul_for:ident) => {
             #[kani::proof_for_contract(NonZero::<$t>::unchecked_mul)]
