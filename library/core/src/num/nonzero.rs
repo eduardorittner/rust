@@ -928,6 +928,7 @@ macro_rules! nonzero_integer {
             #[must_use = "this returns the result of the operation, \
                         without modifying the original"]
             #[inline(always)]
+            #[ensures(|result| result.get() != 0)]
             pub const fn reverse_bits(self) -> Self {
                 let result = self.get().reverse_bits();
                 // SAFETY: Reversing bits preserves the property int > 0.
