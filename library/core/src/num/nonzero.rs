@@ -1534,7 +1534,9 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[must_use = "this returns the result of the operation, \
                       without modifying the original"]
         #[inline]
-        #[ensures(|result| result.get() != 0)]
+        #[ensures(|result| {
+            result.is_some_and(|value| value.get() != 0) || result.is_none()
+        })]
         pub const fn checked_add(self, other: $Int) -> Option<Self> {
             if let Some(result) = self.get().checked_add(other) {
                 // SAFETY:
@@ -3329,42 +3331,42 @@ mod verify {
     nonzero_check_add!(usize, core::num::NonZeroUsize, nonzero_check_unchecked_add_for_usize);
 
     macro_rules! check_saturating_add {
-        ($t:ty, $nonzero_type:ty, $check_saturating_add:ident) => {
+        ($type:ty, $nonzero_type:ty, $check_saturating_add:ident) => {
             #[kani::proof]
             pub fn $check_saturating_add() {
                 let x: $nonzero_type = kani::any();
-                let y: $nonzero_type = kani::any();
+                let y: $type = kani::any();
 
                 x.saturating_add(y);
             }
         };
     }
 
-    check_saturating_add!(i8, core::num::NonZeroI8, check_saturating_add_for_i8);
-    check_saturating_add!(i16, core::num::NonZeroI16, check_saturating_add_for_i16);
-    check_saturating_add!(i32, core::num::NonZeroI32, check_saturating_add_for_i32);
-    check_saturating_add!(i64, core::num::NonZeroI64, check_saturating_add_for_i64);
-    check_saturating_add!(i128, core::num::NonZeroI128, check_saturating_add_for_i128);
-    check_saturating_add!(isize, core::num::NonZeroIsize, check_saturating_add_for_isize);
+    check_saturating_add!(u8, core::num::NonZeroU8, check_saturating_add_for_u8);
+    check_saturating_add!(u16, core::num::NonZeroU16, check_saturating_add_for_u16);
+    check_saturating_add!(u32, core::num::NonZeroU32, check_saturating_add_for_u32);
+    check_saturating_add!(u64, core::num::NonZeroU64, check_saturating_add_for_u64);
+    check_saturating_add!(u128, core::num::NonZeroU128, check_saturating_add_for_u128);
+    check_saturating_add!(usize, core::num::NonZeroUsize, check_saturating_add_for_usize);
 
     macro_rules! check_checked_add {
-        ($t:ty, $nonzero_type:ty, $check_checked_add:ident) => {
+        ($type:ty, $nonzero_type:ty, $check_checked_add:ident) => {
             #[kani::proof]
             pub fn $check_checked_add() {
                 let x: $nonzero_type = kani::any();
-                let y: $nonzero_type = kani::any();
+                let y: $type = kani::any();
 
                 x.checked_add(y);
             }
         };
     }
 
-    check_checked_add!(i8, core::num::NonZeroI8, check_checked_add_for_i8);
-    check_checked_add!(i16, core::num::NonZeroI16, check_checked_add_for_i16);
-    check_checked_add!(i32, core::num::NonZeroI32, check_checked_add_for_i32);
-    check_checked_add!(i64, core::num::NonZeroI64, check_checked_add_for_i64);
-    check_checked_add!(i128, core::num::NonZeroI128, check_checked_add_for_i128);
-    check_checked_add!(isize, core::num::NonZeroIsize, check_checked_add_for_isize);
+    check_checked_add!(u8, core::num::NonZeroU8, check_checked_add_for_u8);
+    check_checked_add!(u16, core::num::NonZeroU16, check_checked_add_for_u16);
+    check_checked_add!(u32, core::num::NonZeroU32, check_checked_add_for_u32);
+    check_checked_add!(u64, core::num::NonZeroU64, check_checked_add_for_u64);
+    check_checked_add!(u128, core::num::NonZeroU128, check_checked_add_for_u128);
+    check_checked_add!(usize, core::num::NonZeroUsize, check_checked_add_for_usize);
 
     macro_rules! check_checked_neg {
         ($type:ty, $nonzero_type:ty, $check_checked_neg_for:ident) => {
@@ -3481,9 +3483,8 @@ mod verify {
             #[kani::proof]
             pub fn $check_checked_next_power_of_two() {
                 let x: $nonzero_type = kani::any();
-                let y: $nonzero_type = kani::any();
 
-                x.check_checked_next_power_of_two(y);
+                x.checked_next_power_of_two();
             }
         };
     }
