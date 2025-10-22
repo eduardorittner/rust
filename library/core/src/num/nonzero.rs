@@ -2096,6 +2096,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[must_use = "this returns the result of the operation, \
                       without modifying the original"]
         #[inline]
+        #[ensures(|result| result.get() != 0)]
         pub const fn unsigned_abs(self) -> NonZero<$Uint> {
             // SAFETY: absolute value of nonzero cannot yield zero values.
             unsafe { NonZero::new_unchecked(self.get().unsigned_abs()) }
