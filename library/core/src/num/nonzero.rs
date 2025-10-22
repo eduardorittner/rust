@@ -2276,6 +2276,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[inline]
         #[stable(feature = "nonzero_negation_ops", since = "1.71.0")]
         #[rustc_const_stable(feature = "nonzero_negation_ops", since = "1.71.0")]
+        #[ensures(|result| result.get() != 0)]
         pub const fn wrapping_neg(self) -> Self {
             let result = self.get().wrapping_neg();
             // SAFETY: negation of nonzero cannot yield zero values.
@@ -3395,6 +3396,24 @@ mod verify {
     check_saturating_neg!(i64, core::num::NonZeroI64, check_saturating_neg_for_64);
     check_saturating_neg!(i128, core::num::NonZeroI128, check_saturating_neg_for_128);
     check_saturating_neg!(isize, core::num::NonZeroIsize, check_saturating_neg_for_isize);
+
+    macro_rules! check_wrapping_neg {
+        ($type:ty, $nonzero_type:ty, $check_wrapping_neg_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::wrapping_neg)]
+            pub fn $check_wrapping_neg_for() {
+                let x: $nonzero_type = kani::any();
+
+                x.wrapping_neg();
+            }
+        };
+    }
+
+    check_wrapping_neg!(i8, core::num::NonZeroI8, check_wrapping_neg_for_i8);
+    check_wrapping_neg!(i16, core::num::NonZeroI16, check_wrapping_neg_for_16);
+    check_wrapping_neg!(i32, core::num::NonZeroI32, check_wrapping_neg_for_32);
+    check_wrapping_neg!(i64, core::num::NonZeroI64, check_wrapping_neg_for_64);
+    check_wrapping_neg!(i128, core::num::NonZeroI128, check_wrapping_neg_for_128);
+    check_wrapping_neg!(isize, core::num::NonZeroIsize, check_wrapping_neg_for_isize);
 
     macro_rules! check_checked_next_power_of_two {
         ($type:ty, $nonzero_type:ty, $check_checked_next_power_of_two:ident) => {
