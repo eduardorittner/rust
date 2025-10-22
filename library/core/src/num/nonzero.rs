@@ -1933,6 +1933,9 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[must_use = "this returns the result of the operation, \
                       without modifying the original"]
         #[inline]
+        #[ensures(|result| {
+            result.is_some_and(|value| value.get() != 0) || result.is_none() && self.get() == $Int::MIN
+        })]
         pub const fn checked_abs(self) -> Option<Self> {
             if let Some(nz) = self.get().checked_abs() {
                 // SAFETY: absolute value of nonzero cannot yield zero values.
@@ -1968,6 +1971,13 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[must_use = "this returns the result of the operation, \
                       without modifying the original"]
         #[inline]
+        #[ensures(|(result, overflow)| {
+            result.get() != 0 && if *overflow {
+                self.get() == $Int::MIN
+            } else {
+                self.get() != $Int::MIN
+            }
+        })]
         pub const fn overflowing_abs(self) -> (Self, bool) {
             let (nz, flag) = self.get().overflowing_abs();
             (
@@ -2005,6 +2015,7 @@ macro_rules! nonzero_integer_signedness_dependent_methods {
         #[must_use = "this returns the result of the operation, \
                       without modifying the original"]
         #[inline]
+        #[ensures(|result| result.get() != 0)]
         pub const fn saturating_abs(self) -> Self {
             // SAFETY: absolute value of nonzero cannot yield zero values.
             unsafe { Self::new_unchecked(self.get().saturating_abs()) }
@@ -2826,6 +2837,100 @@ mod verify {
     check_neg_panic!(i64, core::num::NonZeroI64, check_neg_panic_for_64);
     check_neg_panic!(i128, core::num::NonZeroI128, check_neg_panic_for_128);
     check_neg_panic!(isize, core::num::NonZeroIsize, check_neg_panic_for_isize);
+
+    macro_rules! check_abs {
+        ($type:ty, $nonzero_type:ty, $check_abs_for:ident) => {
+            #[kani::proof]
+            pub fn $check_abs_for() {
+                let x: $nonzero_type = kani::any();
+
+                kani::assume(x.get() != <$type>::MIN);
+
+                let result = x.abs();
+                kani::assert(result.get() != 0, "abs of non-zero value should be non-zero.");
+            }
+        };
+    }
+
+    check_abs!(i8, core::num::NonZeroI8, check_abs_for_i8);
+    check_abs!(i16, core::num::NonZeroI16, check_abs_for_16);
+    check_abs!(i32, core::num::NonZeroI32, check_abs_for_32);
+    check_abs!(i64, core::num::NonZeroI64, check_abs_for_64);
+    check_abs!(i128, core::num::NonZeroI128, check_abs_for_128);
+    check_abs!(isize, core::num::NonZeroIsize, check_abs_for_isize);
+
+    macro_rules! check_abs_panic {
+        ($type:ty, $nonzero_type:ty, $check_abs_for:ident) => {
+            #[kani::proof]
+            #[kani::should_panic]
+            pub fn $check_abs_for() {
+                let x = unsafe { <$nonzero_type>::new_unchecked(<$type>::MIN) };
+
+                x.abs();
+            }
+        };
+    }
+
+    check_abs_panic!(i8, core::num::NonZeroI8, check_abs_panic_for_i8);
+    check_abs_panic!(i16, core::num::NonZeroI16, check_abs_panic_for_16);
+    check_abs_panic!(i32, core::num::NonZeroI32, check_abs_panic_for_32);
+    check_abs_panic!(i64, core::num::NonZeroI64, check_abs_panic_for_64);
+    check_abs_panic!(i128, core::num::NonZeroI128, check_abs_panic_for_128);
+    check_abs_panic!(isize, core::num::NonZeroIsize, check_abs_panic_for_isize);
+
+    macro_rules! check_checked_abs {
+        ($type:ty, $nonzero_type:ty, $check_checked_abs_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::checked_abs)]
+            pub fn $check_checked_abs_for() {
+                let x: $nonzero_type = kani::any();
+
+                x.checked_abs();
+            }
+        };
+    }
+
+    check_checked_abs!(i8, core::num::NonZeroI8, check_checked_abs_for_i8);
+    check_checked_abs!(i16, core::num::NonZeroI16, check_checked_abs_for_16);
+    check_checked_abs!(i32, core::num::NonZeroI32, check_checked_abs_for_32);
+    check_checked_abs!(i64, core::num::NonZeroI64, check_checked_abs_for_64);
+    check_checked_abs!(i128, core::num::NonZeroI128, check_checked_abs_for_128);
+    check_checked_abs!(isize, core::num::NonZeroIsize, check_checked_abs_for_isize);
+
+    macro_rules! check_overflowing_abs {
+        ($type:ty, $nonzero_type:ty, $check_overflowing_abs_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::overflowing_abs)]
+            pub fn $check_overflowing_abs_for() {
+                let x: $nonzero_type = kani::any();
+
+                x.overflowing_abs();
+            }
+        };
+    }
+
+    check_overflowing_abs!(i8, core::num::NonZeroI8, check_overflowing_abs_for_i8);
+    check_overflowing_abs!(i16, core::num::NonZeroI16, check_overflowing_abs_for_16);
+    check_overflowing_abs!(i32, core::num::NonZeroI32, check_overflowing_abs_for_32);
+    check_overflowing_abs!(i64, core::num::NonZeroI64, check_overflowing_abs_for_64);
+    check_overflowing_abs!(i128, core::num::NonZeroI128, check_overflowing_abs_for_128);
+    check_overflowing_abs!(isize, core::num::NonZeroIsize, check_overflowing_abs_for_isize);
+
+    macro_rules! check_saturating_abs {
+        ($type:ty, $nonzero_type:ty, $check_saturating_abs_for:ident) => {
+            #[kani::proof_for_contract(NonZero::<$type>::saturating_abs)]
+            pub fn $check_saturating_abs_for() {
+                let x: $nonzero_type = kani::any();
+
+                x.saturating_abs();
+            }
+        };
+    }
+
+    check_saturating_abs!(i8, core::num::NonZeroI8, check_saturating_abs_for_i8);
+    check_saturating_abs!(i16, core::num::NonZeroI16, check_saturating_abs_for_16);
+    check_saturating_abs!(i32, core::num::NonZeroI32, check_saturating_abs_for_32);
+    check_saturating_abs!(i64, core::num::NonZeroI64, check_saturating_abs_for_64);
+    check_saturating_abs!(i128, core::num::NonZeroI128, check_saturating_abs_for_128);
+    check_saturating_abs!(isize, core::num::NonZeroIsize, check_saturating_abs_for_isize);
 
     macro_rules! check_mul_unchecked_small {
         ($t:ty, $nonzero_type:ty, $nonzero_check_unchecked_mul_for:ident) => {
