@@ -404,7 +404,19 @@ where
         let some_and_nonzero = result.is_some() && !is_zero;
         let none_and_zero = result.is_none() && is_zero;
 
-        (none_and_zero || some_and_nonzero) && same_size && same_align
+        let same_value = match result {
+            Some(value) => {
+                let size = core::mem::size_of::<T>();
+                let value_ptr = &value.get() as *const T as *const u8;
+                let n_ptr = &n as *const T as *const u8;
+                let value_slice = unsafe { core::slice::from_raw_parts(value_ptr, size) };
+                let n_slice = unsafe { core::slice::from_raw_parts(n_ptr, size) };
+                value_slice == n_slice
+            },
+            None => true
+        };
+
+        (none_and_zero || some_and_nonzero) && same_size && same_align && same_value
     })]
     pub const fn new(n: T) -> Option<Self> {
         // SAFETY: Memory layout optimization guarantees that `Option<NonZero<T>>` has
