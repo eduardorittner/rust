@@ -326,6 +326,12 @@ jobs:
             --include-pattern "num::nonzero::NonZero::<i64>::wrapping_" \
             --include-pattern "num::nonzero::NonZero::<i128>::wrapping_" \
             --include-pattern "num::nonzero::NonZero::<isize>::wrapping_" \
+            --include-pattern "num::nonzero::NonZero::<u8>::unchecked_add" \
+            --include-pattern "num::nonzero::NonZero::<u16>::unchecked_add" \
+            --include-pattern "num::nonzero::NonZero::<u32>::unchecked_add" \
+            --include-pattern "num::nonzero::NonZero::<u64>::unchecked_add" \
+            --include-pattern "num::nonzero::NonZero::<u128>::unchecked_add" \
+            --include-pattern "num::nonzero::NonZero::<usize>::unchecked_add" \
             --include-pattern ptr::align_offset::mod_inv \
             --include-pattern ptr::alignment::Alignment::as_nonzero \
             --include-pattern ptr::alignment::Alignment::as_usize \
