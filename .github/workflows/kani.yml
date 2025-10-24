@@ -278,6 +278,18 @@ jobs:
             --include-pattern "num::nonzero::NonZero::<u64>::checked_" \
             --include-pattern "num::nonzero::NonZero::<u128>::checked_" \
             --include-pattern "num::nonzero::NonZero::<usize>::checked_" \
+            --exclude-pattern "num::nonzero::NonZero::<i8>::checked_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<i16>::checked_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<i32>::checked_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<i64>::checked_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<i128>::checked_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<isize>::checked_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<u8>::checked_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<u16>::checked_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<u32>::checked_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<u64>::checked_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<u128>::checked_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<usize>::checked_pow" \
             --include-pattern "num::nonzero::NonZero::<i8>::saturating_" \
             --include-pattern "num::nonzero::NonZero::<i16>::saturating_" \
             --include-pattern "num::nonzero::NonZero::<i32>::saturating_" \
@@ -290,18 +302,18 @@ jobs:
             --include-pattern "num::nonzero::NonZero::<u64>::saturating_" \
             --include-pattern "num::nonzero::NonZero::<u128>::saturating_" \
             --include-pattern "num::nonzero::NonZero::<usize>::saturating_" \
-            --include-pattern "num::nonzero::NonZero::<i8>::saturating_" \
-            --include-pattern "num::nonzero::NonZero::<i16>::unchecked_" \
-            --include-pattern "num::nonzero::NonZero::<i32>::unchecked_" \
-            --include-pattern "num::nonzero::NonZero::<i64>::unchecked_" \
-            --include-pattern "num::nonzero::NonZero::<i128>::unchecked_" \
-            --include-pattern "num::nonzero::NonZero::<isize>::unchecked_" \
-            --include-pattern "num::nonzero::NonZero::<u8>::unchecked_" \
-            --include-pattern "num::nonzero::NonZero::<u16>::unchecked_" \
-            --include-pattern "num::nonzero::NonZero::<u32>::unchecked_" \
-            --include-pattern "num::nonzero::NonZero::<u64>::unchecked_" \
-            --include-pattern "num::nonzero::NonZero::<u128>::unchecked_" \
-            --include-pattern "num::nonzero::NonZero::<usize>::unchecked_" \
+            --exclude-pattern "num::nonzero::NonZero::<i8>::saturating_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<i16>::saturating_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<i32>::saturating_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<i64>::saturating_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<i128>::saturating_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<isize>::saturating_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<u8>::saturating_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<u16>::saturating_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<u32>::saturating_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<u64>::saturating_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<u128>::saturating_pow" \
+            --exclude-pattern "num::nonzero::NonZero::<usize>::saturating_pow" \
             --include-pattern "num::nonzero::NonZero::<i8>::overflowing_" \
             --include-pattern "num::nonzero::NonZero::<i16>::overflowing_" \
             --include-pattern "num::nonzero::NonZero::<i32>::overflowing_" \
